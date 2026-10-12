@@ -1,0 +1,29 @@
+[
+  {
+    "account_id": "acc_hdfc_01",
+    "account_name": "HDFC Primary Savings",
+    "account_type": "CHECKING",
+    "account_number_masked": "\u2022\u2022\u2022\u2022 8492",
+    "currency": "INR",
+    "balance": "32000.00",
+    "balance_as_of": "2026-04-01"
+  },
+  {
+    "account_id": "acc_icici_cc_02",
+    "account_name": "ICICI Coral Credit Card",
+    "account_type": "CREDIT_CARD",
+    "account_number_masked": "\u2022\u2022\u2022\u2022 4109",
+    "currency": "INR",
+    "balance": "-2899.00",
+    "balance_as_of": "2026-04-01"
+  },
+  {
+    "account_id": "acc_axis_03",
+    "account_name": "Axis Secondary Savings",
+    "account_type": "SAVINGS",
+    "account_number_masked": "\u2022\u2022\u2022\u2022 7721",
+    "currency": "INR",
+    "balance": "38100.00",
+    "balance_as_of": "2026-04-01"
+  }
+]

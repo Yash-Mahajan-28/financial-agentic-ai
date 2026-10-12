@@ -1,0 +1,13 @@
+{
+  "month": "2026-03",
+  "limits": {
+    "Food & Dining": "8000.00",
+    "Groceries": "6000.00",
+    "Utilities": "3500.00",
+    "Housing & Rent": "18000.00",
+    "Transportation": "3000.00",
+    "Entertainment": "1500.00",
+    "Shopping": "4000.00",
+    "Health & Fitness": "2500.00"
+  }
+}

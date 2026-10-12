@@ -1,0 +1,12 @@
+{
+  "user_id": "usr_demo_01",
+  "email": "demo@agentic.finance",
+  "full_name": "Aarav Sharma",
+  "currency": "INR",
+  "confirmed_net_income": "50000.00",
+  "confirmed_monthly_debt": "7000.00",
+  "liquid_emergency_reserve": "75000.00",
+  "target_savings_rate": "0.20",
+  "debt_burden_ceiling": "0.40",
+  "reserve_target_months": 3
+}

@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: 247 250 252;
+  --surface: 255 255 255;
+  --sunken: 241 245 249;
+  --line: 226 232 240;
+  --ink: 15 23 42;
+  --muted: 71 85 105;
+  --faint: 148 163 184;
+  --navy: 15 23 42;
+  --navy-soft: 30 41 59;
+  --accent: 14 165 233;       /* sky cyan */
+  --accent-soft: 224 242 254;
+  --pass: 16 185 129;        /* emerald */
+  --pass-soft: 209 250 229;
+  --fail: 239 68 68;          /* rose */
+  --fail-soft: 254 226 226;
+  --warn: 245 158 11;         /* amber */
+  --warn-soft: 254 243 199;
+  color-scheme: light;
+}
+
+.dark {
+  --canvas: 11 15 25;         /* deep obsidian */
+  --surface: 18 24 38;        /* elevated dark navy */
+  --sunken: 13 18 30;
+  --line: 30 41 59;
+  --ink: 241 245 249;
+  --muted: 148 163 184;
+  --faint: 100 116 139;
+  --navy: 8 12 20;
+  --navy-soft: 23 32 51;
+  --accent: 56 189 248;       /* cyan glow */
+  --accent-soft: 12 74 110;
+  --pass: 52 211 153;
+  --pass-soft: 6 78 59;
+  --fail: 248 113 113;
+  --fail-soft: 127 29 29;
+  --warn: 251 191 36;
+  --warn-soft: 120 53 15;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-canvas font-sans text-[14px] text-ink antialiased selection:bg-accent/20;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted));
+}

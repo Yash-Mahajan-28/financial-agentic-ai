@@ -1,0 +1,57 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1938 >>
+stream
+BT
+/F1 10 Tf
+50 750 Td
+14 TL
+(HDFC BANK LIMITED - ACCOUNT STATEMENT) '
+(Account Number: 50100482910482  |  Currency: INR  |  Period: 01-Jan-2026 to 31-Mar-2026) '
+(Account Holder: Aarav Sharma  |  Branch: Koramangala, Bangalore) '
+(Opening Balance: 28,500.00 INR  |  Closing Balance: 32,000.00 INR) '
+(------------------------------------------------------------------------------------------------) '
+(Date        Description                              Amount     Type    Reference     Balance) '
+(2026-03-03  MONTHLY APARTMENT RENT TRANSFER          18000.00   DEBIT   RENT1035      10500.00) '
+(2026-03-05  MONTHLY SALARY CREDIT TECHCORP LTD       50000.00   CREDIT  SAL1036       60500.00) '
+(2026-03-06  BLINKIT COMMERCE 4821 BLR                 1850.00   DEBIT   UPI1037       58650.00) '
+(2026-03-08  SWIGGY ORDER BLR                           450.00   DEBIT   UPI1038       58200.00) '
+(2026-03-10  HDFC BANK PERSONAL LOAN EMI               7000.00   DEBIT   EMI1039       51200.00) '
+(2026-03-12  BESCOM ELECTRICITY BILL                   1800.00   DEBIT   UTIL1040      49400.00) '
+(2026-03-14  AIRTEL BROADBAND FIBER BLR                 999.00   DEBIT   UTIL1041      48401.00) '
+(2026-03-15  ZERODHA BROKING LTD FUNDS                 5000.00   DEBIT   SIP1042       43401.00) '
+(2026-03-16  CULT FIT HEALTHCARE MEMBERSHIP            1500.00   DEBIT   CULT1043      41901.00) '
+(2026-03-18  NETFLIX ENTERTAINMENT SUBSCRIPTION         649.00   DEBIT   SUB1044       41252.00) '
+(2026-03-24  SWIGGY ORDER BLR                           450.00   DEBIT   UPI1048       38352.00) '
+(2026-03-26  MAX HEALTHCARE HOSPITAL OPD              15000.00   DEBIT   MED1049       23352.00) '
+(2026-03-31  INTEREST CREDIT QUARTERLY SAVINGS         8648.00   CREDIT  INT1051       32000.00) '
+(------------------------------------------------------------------------------------------------) '
+(End of Statement - Generated electronically) '
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000002231 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2301
+%%EOF

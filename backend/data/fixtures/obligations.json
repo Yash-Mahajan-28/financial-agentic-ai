@@ -1,0 +1,57 @@
+[
+  {
+    "obligation_id": "ob_sal_01",
+    "title": "TechCorp Monthly Salary",
+    "amount": "50000.00",
+    "direction": "CREDIT",
+    "day_of_month": 5,
+    "category": "Income",
+    "obligation_type": "SALARY",
+    "account_id": "acc_hdfc_01",
+    "is_confirmed": true
+  },
+  {
+    "obligation_id": "ob_rent_02",
+    "title": "Apartment Rent to Landlord",
+    "amount": "18000.00",
+    "direction": "DEBIT",
+    "day_of_month": 3,
+    "category": "Housing & Rent",
+    "obligation_type": "BILL",
+    "account_id": "acc_hdfc_01",
+    "is_confirmed": true
+  },
+  {
+    "obligation_id": "ob_emi_03",
+    "title": "Personal Loan EMI",
+    "amount": "7000.00",
+    "direction": "DEBIT",
+    "day_of_month": 10,
+    "category": "Debt Settlement",
+    "obligation_type": "EMI",
+    "account_id": "acc_hdfc_01",
+    "is_confirmed": true
+  },
+  {
+    "obligation_id": "ob_elec_04",
+    "title": "BESCOM Electricity & Utilities",
+    "amount": "2800.00",
+    "direction": "DEBIT",
+    "day_of_month": 12,
+    "category": "Utilities",
+    "obligation_type": "BILL",
+    "account_id": "acc_hdfc_01",
+    "is_confirmed": true
+  },
+  {
+    "obligation_id": "ob_sub_05",
+    "title": "Digital Subscriptions (Netflix, Spotify, Gym)",
+    "amount": "2268.00",
+    "direction": "DEBIT",
+    "day_of_month": 18,
+    "category": "Entertainment",
+    "obligation_type": "SUBSCRIPTION",
+    "account_id": "acc_hdfc_01",
+    "is_confirmed": true
+  }
+]
