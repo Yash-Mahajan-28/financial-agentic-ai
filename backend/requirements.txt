@@ -13,3 +13,7 @@ pypdf==5.0.1
 requests==2.32.3
 pytest==8.3.3
 python-multipart==0.0.12
+langchain>=0.3.0
+langchain-core>=0.3.0
+langgraph>=0.2.0
+langchain-google-genai>=2.0.0

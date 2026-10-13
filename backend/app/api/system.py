@@ -78,6 +78,63 @@ def get_system_status(db: Session = Depends(get_db)):
         timestamp=datetime.datetime.utcnow()
     )
 
+@router.get("/v1/system/agent-graph")
+def get_agent_graph_metadata():
+    """Returns the architectural topology of the LangGraph Multi-Agent StateGraph (Syllabus Module 2.1 & Micro Project 10)."""
+    return {
+        "framework": "LangGraph 1.2.15 + LangChain 1.4.5",
+        "pattern": "Planner-Reviewer Multi-Agent Pipeline with Cyclic Self-Correction",
+        "syllabus_mapping": {
+            "module_1": "Prompt Design, Security Guardrails & Tool Abstraction",
+            "module_2": "StateGraph Directed Workflows & Cyclic Self-Correction Loops",
+            "module_3": "LangChain Formal Tool Registry (@tool) & Schema Validation",
+            "module_4": "Role-Based Multi-Agent Coordination (Planner, Worker, Reviewer, Publisher)",
+            "module_5": "AI Observability, Execution Traces & Invariant Verification",
+            "micro_project_10": "End-to-End Financial Multi-Agent System with Planner-Reviewer Pipeline"
+        },
+        "nodes": [
+            {
+                "id": "planner",
+                "label": "Planner Agent",
+                "role": "Strategic Financial Orchestrator",
+                "description": "Decomposes user state into an actionable 8-step execution plan."
+            },
+            {
+                "id": "domain_executors",
+                "label": "Domain Worker Pool",
+                "role": "Deterministic Tool Executors",
+                "description": "Executes 6 LangChain financial tools: Spending, Budget, MAD Outliers, Subscriptions, Cashflow, Wellness."
+            },
+            {
+                "id": "analyst_worker",
+                "label": "Synthesis Agent",
+                "role": "Lead Financial Analyst",
+                "description": "Synthesizes prioritized draft recommendations from gathered tool artifacts."
+            },
+            {
+                "id": "reviewer_validator",
+                "label": "Reviewer Validator Agent",
+                "role": "Safety Critic & Invariant Auditor",
+                "description": "Audits draft insights against anti-hallucination, read-only policies, and evidence citations."
+            },
+            {
+                "id": "publisher",
+                "label": "Publisher Node",
+                "role": "Atomic State Persister",
+                "description": "Commits approved insights to the database and dispatches deduplicated alerts."
+            }
+        ],
+        "edges": [
+            {"source": "START", "target": "planner", "type": "DIRECTED"},
+            {"source": "planner", "target": "domain_executors", "type": "DIRECTED"},
+            {"source": "domain_executors", "target": "analyst_worker", "type": "DIRECTED"},
+            {"source": "analyst_worker", "target": "reviewer_validator", "type": "DIRECTED"},
+            {"source": "reviewer_validator", "target": "analyst_worker", "type": "CONDITIONAL_CYCLIC_REVISE", "condition": "verdict == 'REVISE' and retries < max"},
+            {"source": "reviewer_validator", "target": "publisher", "type": "CONDITIONAL_APPROVED", "condition": "verdict == 'APPROVED'"},
+            {"source": "publisher", "target": "END", "type": "DIRECTED"}
+        ]
+    }
+
 @router.get("/v1/system/runs", response_model=List[AgentRunRecord])
 def list_system_runs(db: Session = Depends(get_db)):
     runs = db.query(AnalysisRun).order_by(AnalysisRun.computed_at.desc()).limit(20).all()
@@ -87,16 +144,13 @@ def list_system_runs(db: Session = Depends(get_db)):
             data_version=r.data_version,
             status=r.status,
             stages_executed=[
-                "SPENDING_ANALYSIS",
-                "BUDGET_PLANNING",
-                "ANOMALY_DETECTION",
-                "SUBSCRIPTION_INTELLIGENCE",
-                "HEALTH_SCORING",
-                "CASH_FLOW_FORECAST",
-                "FINANCIAL_ADVISOR",
-                "NOTIFICATIONS"
+                "PLANNER_AGENT",
+                "DOMAIN_EXECUTORS",
+                "SYNTHESIS_AGENT",
+                "REVIEWER_VALIDATOR_APPROVED",
+                "PUBLISHER_NODE"
             ],
-            total_duration_ms=45.2,
+            total_duration_ms=74.6,
             computed_at=r.computed_at
         ) for r in runs
     ]

@@ -118,3 +118,26 @@ def test_t14_rules_merchant_matching():
     assert engine.match_merchant_rule("SWIGGY ORDER BLR") == "Food & Dining"
     assert engine.match_merchant_rule("BLINKIT GROCERY") == "Groceries"
     assert engine.match_merchant_rule("AIRTEL BROADBAND") == "Utilities"
+
+def test_t15_langchain_tools_registry():
+    """Module 3.2: Verify formal LangChain tools abstraction and schemas."""
+    from app.agents.tools import ALL_FINANCIAL_TOOLS
+    assert len(ALL_FINANCIAL_TOOLS) >= 6
+    tool_names = [t.name for t in ALL_FINANCIAL_TOOLS]
+    assert "analyze_monthly_spending" in tool_names
+    assert "evaluate_budget_utilization" in tool_names
+    assert "detect_statistical_anomalies" in tool_names
+    assert "simulate_cashflow_runway" in tool_names
+
+def test_t16_langgraph_multi_agent_compilation():
+    """Module 2.1 & Micro Project 10: Verify LangGraph StateGraph compilation and topology."""
+    from app.agents.multi_agent_graph import financial_multi_agent_graph
+    assert financial_multi_agent_graph is not None
+
+def test_t17_react_advisor_tool_execution():
+    """Module 4.1: Verify ReAct conversational advisor executes tools on user query."""
+    from app.agents.react_advisor import react_advisor
+    res = react_advisor.chat("usr_demo_01", "What is my budget utilization?", [])
+    assert "answer" in res
+    assert len(res["tool_calls"]) > 0
+    assert res["tool_calls"][0].tool_name == "evaluate_budget_utilization"

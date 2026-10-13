@@ -173,51 +173,8 @@ class FinancialAdvisorAgent(BaseAgent):
         }
 
     def chat(self, db: Session, user_id: str, query: str, history: List[Dict[str, str]]) -> Dict[str, Any]:
-        """Conversational advisor with allowlisted tools execution (spec page 12)."""
-        system_prompt = (
-            "You are the Agentic Personal Finance Advisor for a fintech platform. "
-            "You provide factual, mathematically verified explanations grounded strictly in the user's data. "
-            "FINANCIAL GUARDRAILS:\n"
-            "1. You NEVER execute financial transactions, alter budgets, or cancel subscriptions directly.\n"
-            "2. Always cite evidence: insight IDs (e.g. INS_001), transaction IDs, or exact dates.\n"
-            "3. If requested data is missing, explicitly ask the user for confirmation.\n"
-            "4. Never invent amounts or hallucinate balances.\n"
-            "5. Currency is Indian Rupee (INR)."
-        )
-
-        # Allowlisted tools declarations for LLM
-        tools_declarations = [
-            {"name": "get_month_summary", "description": "Fetch monthly income, net spending, and surplus."},
-            {"name": "get_budget_status", "description": "Fetch category budget limits and utilization."},
-            {"name": "get_forecast", "description": "Fetch 30-day cash flow projected closing balance and shortfalls."},
-            {"name": "get_insight_evidence", "description": "Retrieve exact evidence for a specific financial insight."}
-        ]
-
-        messages = list(history) if history else []
-        messages.append({"role": "user", "content": query})
-
-        # Run LLM or grounded fallback
-        llm_resp = llm_service.generate_chat_response(system_prompt, messages, tools_declarations)
-        
-        # Tool call record tracking
-        tool_records = []
-        for tc in llm_resp.get("tool_calls", []):
-            tool_records.append(ToolCallRecord(
-                tool_name=tc["tool_name"],
-                arguments=tc.get("arguments", {}),
-                result=tc.get("result", {})
-            ))
-
-        return {
-            "answer": llm_resp.get("text", ""),
-            "tool_calls": tool_records,
-            "cited_insights": ["ins_budget_01", "ins_forecast_01"] if "budget" in query.lower() or "forecast" in query.lower() else [],
-            "cited_transactions": [],
-            "suggested_follow_ups": [
-                "How can I rebalance my budget to avoid overspending?",
-                "Simulate cash flow if my salary is delayed by 10 days",
-                "Which recurring subscriptions could I cancel to save money?"
-            ]
-        }
+        """Conversational advisor with LangChain ReAct loop and formal tool execution (Module 4.1)."""
+        from app.agents.react_advisor import react_advisor
+        return react_advisor.chat(user_id=user_id, query=query, history=history)
 
 advisor_agent = FinancialAdvisorAgent()

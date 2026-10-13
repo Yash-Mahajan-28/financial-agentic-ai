@@ -173,5 +173,13 @@ export const api = {
 
   // System
   getSystemStatus: () => request<SystemStatus>("/system/status"),
-  getSystemRuns: () => request<AgentRunRecord[]>("/system/runs")
+  getSystemRuns: () => request<AgentRunRecord[]>("/system/runs"),
+  getAgentGraphMetadata: () =>
+    request<{
+      framework: string;
+      pattern: string;
+      syllabus_mapping: Record<string, string>;
+      nodes: Array<{ id: string; label: string; role: string; description: string }>;
+      edges: Array<{ source: string; target: string; type: string; condition?: string }>;
+    }>("/system/agent-graph")
 };

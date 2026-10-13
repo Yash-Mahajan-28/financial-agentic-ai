@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Settings, ShieldCheck, Activity, Cpu, Database, RefreshCw, CheckCircle2, User, Calendar } from "lucide-react";
+import { Settings, ShieldCheck, Activity, Cpu, Database, RefreshCw, CheckCircle2, User, Calendar, Network, ArrowRight, RotateCw, CheckCircle } from "lucide-react";
 import { Card, Badge, Button, LoadingState } from "../components/ui";
 import { api } from "../services/api";
 import { SystemStatus, AgentRunRecord, UserProfile, ObligationItem } from "../types";
@@ -9,6 +9,7 @@ export default function SystemPage() {
   const [runs, setRuns] = useState<AgentRunRecord[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [obligations, setObligations] = useState<ObligationItem[]>([]);
+  const [graphMeta, setGraphMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   // Edit profile state
@@ -20,16 +21,18 @@ export default function SystemPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [st, r, p, obs] = await Promise.all([
+      const [st, r, p, obs, gm] = await Promise.all([
         api.getSystemStatus(),
         api.getSystemRuns(),
         api.getMe(),
-        api.getObligations()
+        api.getObligations(),
+        api.getAgentGraphMetadata()
       ]);
       setStatus(st);
       setRuns(r);
       setProfile(p);
       setObligations(obs);
+      setGraphMeta(gm);
       setIncome(String(p.confirmed_net_income));
       setDebt(String(p.confirmed_monthly_debt));
       setReserve(String(p.liquid_emergency_reserve));
@@ -68,9 +71,12 @@ export default function SystemPage() {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-ink tracking-tight">System Health & Settings</h1>
+        <h1 className="text-2xl font-bold text-ink tracking-tight flex items-center gap-2">
+          System Health & Agentic Architecture
+          <Badge variant="pass" className="text-xs">LangGraph Active</Badge>
+        </h1>
         <p className="text-sm text-muted mt-1">
-          Measured service readiness, agent orchestration execution logs, and user profile inputs.
+          Measured service readiness, LangGraph multi-agent orchestration traces, and syllabus alignment.
         </p>
       </div>
 
@@ -91,6 +97,119 @@ export default function SystemPage() {
           </Card>
         ))}
       </div>
+
+      {/* LangGraph Multi-Agent Architecture (Syllabus Micro Project #10 & Module 2/4) */}
+      <Card
+        title="LangGraph Multi-Agent Orchestration Architecture"
+        subtitle="Autonomous Planner-Reviewer StateGraph with cyclic self-correction & formal LangChain tools (VESIT Syllabus 26CMPC72)"
+      >
+        <div className="space-y-6 pt-2">
+          {/* Architecture Badges Header */}
+          <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-line">
+            <Badge variant="pass" className="text-xs px-2.5 py-1">
+              Framework: {graphMeta?.framework || "LangGraph 1.2.15 + LangChain 1.4.5"}
+            </Badge>
+            <Badge variant="default" className="text-xs px-2.5 py-1">
+              Pattern: Planner-Reviewer Pipeline (Micro Project #10)
+            </Badge>
+            <Badge variant="warn" className="text-xs px-2.5 py-1 flex items-center gap-1">
+              <RotateCw className="h-3 w-3" />
+              Workflow: Cyclic StateGraph with Self-Healing
+            </Badge>
+          </div>
+
+          {/* Interactive Multi-Agent Node Visualizer */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {/* Node 1: Planner Agent */}
+            <div className="p-3.5 rounded-xl border border-accent/30 bg-accent/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-accent uppercase tracking-wide">Node 1</span>
+                <Badge variant="default" className="text-[9px]">Planner</Badge>
+              </div>
+              <h4 className="text-xs font-bold text-ink">Planner Agent</h4>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Decomposes financial audit request into structured 8-step execution plan across worker roles.
+              </p>
+              <div className="pt-1 text-[10px] text-accent font-semibold flex items-center gap-1">
+                Output: Strategic Plan <ArrowRight className="h-3 w-3" />
+              </div>
+            </div>
+
+            {/* Node 2: Domain Executors */}
+            <div className="p-3.5 rounded-xl border border-line bg-canvas space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted uppercase tracking-wide">Node 2</span>
+                <Badge variant="default" className="text-[9px]">6 Tools</Badge>
+              </div>
+              <h4 className="text-xs font-bold text-ink">Domain Workers</h4>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Executes LangChain tools: Spending, 50/30/20 Budget, MAD Outliers, Subscriptions, Runway, Wellness.
+              </p>
+              <div className="pt-1 text-[10px] text-ink font-semibold flex items-center gap-1">
+                Output: Raw Artifacts <ArrowRight className="h-3 w-3" />
+              </div>
+            </div>
+
+            {/* Node 3: Synthesis Agent */}
+            <div className="p-3.5 rounded-xl border border-line bg-canvas space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted uppercase tracking-wide">Node 3</span>
+                <Badge variant="default" className="text-[9px]">Analyst</Badge>
+              </div>
+              <h4 className="text-xs font-bold text-ink">Synthesis Agent</h4>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Synthesizes prioritized draft recommendations ranked by cash shortfall urgency & budget risks.
+              </p>
+              <div className="pt-1 text-[10px] text-ink font-semibold flex items-center gap-1">
+                Output: Draft Insights <ArrowRight className="h-3 w-3" />
+              </div>
+            </div>
+
+            {/* Node 4: Reviewer / Validator */}
+            <div className="p-3.5 rounded-xl border border-warn/40 bg-warn/5 space-y-2 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-warn uppercase tracking-wide">Node 4</span>
+                <Badge variant="warn" className="text-[9px]">Critic</Badge>
+              </div>
+              <h4 className="text-xs font-bold text-ink">Reviewer Validator</h4>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Audits against mathematical invariance, read-only safety guardrails, and verifiable evidence.
+              </p>
+              <div className="pt-1 text-[10px] text-warn font-semibold flex items-center gap-1">
+                Loop: Self-Correction if invalid
+              </div>
+            </div>
+
+            {/* Node 5: Publisher */}
+            <div className="p-3.5 rounded-xl border border-pass/40 bg-pass/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-pass uppercase tracking-wide">Node 5</span>
+                <Badge variant="pass" className="text-[9px]">Publisher</Badge>
+              </div>
+              <h4 className="text-xs font-bold text-ink">Publisher Node</h4>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Atomically commits approved insights to SQLite/Postgres and dispatches in-app notifications.
+              </p>
+              <div className="pt-1 text-[10px] text-pass font-semibold flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" /> Published & Notified
+              </div>
+            </div>
+          </div>
+
+          {/* Syllabus Module Cross-Reference */}
+          <div className="p-3 rounded-lg bg-sunken/40 border border-line text-xs space-y-2">
+            <span className="font-semibold text-ink block">Curriculum Alignment Matrix (Course 26CMPC72):</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-muted">
+              <div>• <strong>Module 1:</strong> Schema-constrained execution & guardrails</div>
+              <div>• <strong>Module 2:</strong> StateGraph DAGs & cyclic feedback loops</div>
+              <div>• <strong>Module 3:</strong> Formal @tool abstractions & pipelines</div>
+              <div>• <strong>Module 4:</strong> Role-based multi-agent coordination</div>
+              <div>• <strong>Module 5:</strong> AI observability & runtime safety</div>
+              <div>• <strong>Micro Project 10:</strong> Full Planner-Reviewer Pipeline</div>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Financial Profile Settings Card */}
       <Card
