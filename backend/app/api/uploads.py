@@ -45,8 +45,15 @@ async def upload_statement(
     )
 
     upload_id = result["upload_id"]
-    job_id = result["job_id"]
+    job_id = result.get("job_id", "")
     parsed_rows = result.get("parsed_rows", [])
+
+    # Check if exact duplicate file detected
+    if result.get("status") == "DUPLICATE_FILE":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This statement file has already been imported for this account. Duplicate upload prevented (SHA-256 match)."
+        )
 
     # If parsing succeeded, run Categorization Agent on parsed rows
     if parsed_rows:

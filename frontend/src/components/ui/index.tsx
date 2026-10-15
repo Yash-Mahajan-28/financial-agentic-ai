@@ -160,3 +160,60 @@ export function EmptyState({
     </div>
   );
 }
+
+// Error Boundary
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallbackTitle?: string;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught an unhandled error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 max-w-2xl mx-auto my-12 rounded-2xl border border-fail/30 bg-fail-soft/20 text-center space-y-4 shadow-sm">
+          <div className="h-12 w-12 rounded-full bg-fail/20 text-fail mx-auto flex items-center justify-center font-bold text-xl">
+            !
+          </div>
+          <h2 className="text-lg font-bold text-ink">
+            {this.props.fallbackTitle || "Something went wrong in this view"}
+          </h2>
+          <p className="text-xs text-muted max-w-md mx-auto">
+            {this.state.error?.message || "An unexpected rendering error occurred."}
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="px-4 py-2 rounded-lg bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+

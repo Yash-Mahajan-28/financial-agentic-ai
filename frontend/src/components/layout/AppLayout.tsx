@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import clsx from "clsx";
 import {
@@ -15,6 +15,8 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
+import { api } from "../../services/api";
+import { ErrorBoundary } from "../ui";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -29,6 +31,35 @@ const navItems = [
 
 export function AppLayout() {
   const { theme, toggleTheme } = useTheme();
+  const [engineStatus, setEngineStatus] = useState<"HEALTHY" | "DEGRADED" | "OFFLINE" | "CHECKING">("CHECKING");
+  const [engineLatency, setEngineLatency] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkHealth = async () => {
+      try {
+        const t0 = performance.now();
+        const res = await api.getSystemStatus();
+        const roundTripMs = Math.round(performance.now() - t0);
+        if (isMounted) {
+          setEngineStatus(res.overall_health === "HEALTHY" ? "HEALTHY" : "DEGRADED");
+          setEngineLatency(roundTripMs);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setEngineStatus("OFFLINE");
+          setEngineLatency(null);
+        }
+      }
+    };
+
+    checkHealth();
+    const interval = setInterval(checkHealth, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen w-full bg-canvas overflow-hidden">
@@ -74,14 +105,33 @@ export function AppLayout() {
           </nav>
         </div>
 
-        {/* Footer controls: System status & Theme toggle */}
+        {/* Footer controls: Dynamic Backend Status & Theme toggle */}
         <div className="p-4 border-t border-line space-y-3">
           <div className="flex items-center justify-between text-xs text-muted px-2 py-1.5 rounded-lg bg-sunken">
             <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-pass animate-pulse"></span>
-              <span className="font-medium text-ink">Engine Live</span>
+              <span
+                className={clsx(
+                  "h-2 w-2 rounded-full",
+                  engineStatus === "HEALTHY" && "bg-pass animate-pulse",
+                  engineStatus === "DEGRADED" && "bg-warn animate-pulse",
+                  engineStatus === "OFFLINE" && "bg-fail",
+                  engineStatus === "CHECKING" && "bg-warn"
+                )}
+              ></span>
+              <span className={clsx("font-medium", engineStatus === "OFFLINE" ? "text-fail font-semibold" : "text-ink")}>
+                {engineStatus === "HEALTHY" && "Engine Live"}
+                {engineStatus === "DEGRADED" && "Engine Degraded"}
+                {engineStatus === "OFFLINE" && "Engine Offline"}
+                {engineStatus === "CHECKING" && "Checking Engine..."}
+              </span>
             </span>
-            <span className="text-[11px] text-muted">v1.0.0</span>
+            <span className="text-[10px] font-mono text-muted">
+              {engineStatus === "HEALTHY" && engineLatency !== null
+                ? `${engineLatency}ms`
+                : engineStatus === "OFFLINE"
+                ? "Docker / API down"
+                : "v1.0.0"}
+            </span>
           </div>
 
           <div className="flex items-center justify-between pt-1">
@@ -107,7 +157,9 @@ export function AppLayout() {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-full overflow-y-auto">
-        <Outlet />
+        <ErrorBoundary fallbackTitle="An error occurred while loading this view">
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );

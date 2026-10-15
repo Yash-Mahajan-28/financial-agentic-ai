@@ -29,13 +29,15 @@ export default function SystemPage() {
         api.getAgentGraphMetadata()
       ]);
       setStatus(st);
-      setRuns(r);
+      setRuns(r || []);
       setProfile(p);
-      setObligations(obs);
+      setObligations(obs || []);
       setGraphMeta(gm);
-      setIncome(String(p.confirmed_net_income));
-      setDebt(String(p.confirmed_monthly_debt));
-      setReserve(String(p.liquid_emergency_reserve));
+      if (p) {
+        if (p.confirmed_net_income !== undefined && p.confirmed_net_income !== null) setIncome(String(p.confirmed_net_income));
+        if (p.confirmed_monthly_debt !== undefined && p.confirmed_monthly_debt !== null) setDebt(String(p.confirmed_monthly_debt));
+        if (p.liquid_emergency_reserve !== undefined && p.liquid_emergency_reserve !== null) setReserve(String(p.liquid_emergency_reserve));
+      }
     } catch (err) {
       console.error("Failed to load system data", err);
     } finally {
@@ -82,7 +84,7 @@ export default function SystemPage() {
 
       {/* Services Health Status */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {Object.entries(status.services).map(([key, svc]) => (
+        {status?.services && Object.entries(status.services).map(([key, svc]) => (
           <Card key={key} className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted">{svc.name}</span>
@@ -91,7 +93,7 @@ export default function SystemPage() {
               </Badge>
             </div>
             <p className="text-xs text-ink font-medium">{svc.details || "Active"}</p>
-            {svc.latency_ms !== undefined && (
+            {typeof svc.latency_ms === "number" && (
               <span className="text-[10px] text-faint block">{svc.latency_ms.toFixed(1)}ms response</span>
             )}
           </Card>
@@ -311,10 +313,14 @@ export default function SystemPage() {
                   <td className="py-2.5 px-3 font-mono font-medium text-accent">{r.run_id}</td>
                   <td className="py-2.5 px-3 font-mono text-muted">{r.data_version}</td>
                   <td className="py-2.5 px-3 text-muted text-[11px]">
-                    {r.stages_executed.slice(0, 4).join(" → ")}...
+                    {Array.isArray(r.stages_executed) ? `${r.stages_executed.slice(0, 4).join(" → ")}...` : "—"}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-ink">{r.total_duration_ms.toFixed(1)}ms</td>
-                  <td className="py-2.5 px-3 text-right text-muted">{new Date(r.computed_at).toLocaleTimeString()}</td>
+                  <td className="py-2.5 px-3 text-right font-mono text-ink">
+                    {typeof r.total_duration_ms === "number" ? `${r.total_duration_ms.toFixed(1)}ms` : "—"}
+                  </td>
+                  <td className="py-2.5 px-3 text-right text-muted">
+                    {r.computed_at ? new Date(r.computed_at).toLocaleTimeString() : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

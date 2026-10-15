@@ -32,10 +32,13 @@ class IngestionAgent(BaseAgent):
         ).first()
 
         if existing_upload:
+            existing_job = db.query(Job).filter(Job.upload_id == existing_upload.upload_id).first()
+            job_id = existing_job.job_id if existing_job else f"job_{uuid.uuid4().hex[:12]}"
             return {
                 "status": "DUPLICATE_FILE",
                 "message": "This statement file has already been imported for this account.",
                 "upload_id": existing_upload.upload_id,
+                "job_id": job_id,
                 "rows": [],
                 "errors": [{"error": "Exact repeat file detected for account.", "code": "REPEAT_FILE"}]
             }
@@ -71,6 +74,7 @@ class IngestionAgent(BaseAgent):
             parser_version="v1.0"
         )
         db.add(upload_record)
+        db.flush() # Explicitly flush upload entity to ensure foreign key constraint in jobs is satisfied
 
         # 7. Create Job entity
         job_id = f"job_{uuid.uuid4().hex[:12]}"
