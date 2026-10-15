@@ -129,8 +129,8 @@ export function AppLayout() {
               {engineStatus === "HEALTHY" && engineLatency !== null
                 ? `${engineLatency}ms`
                 : engineStatus === "OFFLINE"
-                ? "Docker / API down"
-                : "v1.0.0"}
+                  ? "Docker / API down"
+                  : "v1.0.0"}
             </span>
           </div>
 
@@ -140,7 +140,7 @@ export function AppLayout() {
                 AS
               </div>
               <div className="leading-tight">
-                <p className="text-xs font-semibold text-ink">Aarav Sharma</p>
+                <p className="text-xs font-semibold text-ink">Yash Mahajan</p>
                 <p className="text-[10px] text-muted">demo@agentic.finance</p>
               </div>
             </div>

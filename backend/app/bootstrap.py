@@ -48,7 +48,7 @@ def seed_database(db: Session):
         user_id=user_id,
         email="demo@agentic.finance",
         hashed_password=hashed_pw,
-        full_name="Aarav Sharma",
+        full_name="Yash Mahajan",
         currency="INR",
         confirmed_net_income=Decimal("50000.00"),
         confirmed_monthly_debt=Decimal("7000.00"),

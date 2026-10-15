@@ -12,7 +12,7 @@
 | **API Swagger Docs** | `http://localhost:8000/docs` | Interactive OpenAPI documentation. |
 | **Evaluator Account** | `demo@agentic.finance` | Pre-seeded demo account. |
 | **Demo Password** | `Demo@1234` | Secure PBKDF2-HMAC-SHA256 hashed credentials. |
-| **Test Persona** | **Aarav Sharma** | Salaried professional (₹50,000/mo) with 3 pre-seeded accounts and 3 months of banking statements (Jan–Mar 2026). |
+| **Test Persona** | **Yash Mahajan** | Salaried professional (₹50,000/mo) with 3 pre-seeded accounts and 3 months of banking statements (Jan–Mar 2026). |
 
 > [!TIP]
 > **Zero Configuration Required**: All 8 screens are fully populated out-of-the-box with pre-calculated golden cases. You can follow this guide step-by-step from Phase 1 through Phase 8 without needing to upload files first.
@@ -335,7 +335,7 @@ The Advisor provides an interactive chat interface powered by an autonomous **La
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │ CONVERSATIONAL FINANCIAL ADVISOR                     [ Read-Only Guardrails OK ] │
 ├──────────────────────────────────────────────────────────────────────────────────┤
-│ [Assistant]: Hello Aarav! I am your Agentic Personal Finance Advisor.            │
+│ [Assistant]: Hello Yash! I am your Agentic Personal Finance Advisor.            │
 │ How can I assist you with your finances today?                                   │
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │ QUICK SUGGESTIONS:                                                               │

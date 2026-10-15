@@ -7,7 +7,7 @@ import { ChatMessage } from "../types";
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
-    content: "Hello Aarav! I am your Agentic Personal Finance Advisor. I analyze your approved ledger, budget utilizations, and 30-day cash forecasts to provide grounded financial guidance. How can I help you today?",
+    content: "Hello Yash! I am your Agentic Personal Finance Advisor. I analyze your approved ledger, budget utilizations, and 30-day cash forecasts to provide grounded financial guidance. How can I help you today?",
     tool_calls: [],
     cited_insights: []
   }
@@ -94,9 +94,8 @@ export default function AdvisorPage() {
             className={`flex items-start gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}
           >
             <div
-              className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
-                m.role === "user" ? "bg-accent text-white" : "bg-sunken text-accent border border-line"
-              }`}
+              className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${m.role === "user" ? "bg-accent text-white" : "bg-sunken text-accent border border-line"
+                }`}
             >
               {m.role === "user" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
             </div>
@@ -119,11 +118,10 @@ export default function AdvisorPage() {
 
               {/* Message Bubble */}
               <div
-                className={`p-4 rounded-2xl text-xs leading-relaxed ${
-                  m.role === "user"
+                className={`p-4 rounded-2xl text-xs leading-relaxed ${m.role === "user"
                     ? "bg-accent text-white rounded-tr-none shadow-sm"
                     : "bg-surface border border-line text-ink rounded-tl-none shadow-sm"
-                }`}
+                  }`}
               >
                 <p className="whitespace-pre-line">{m.content}</p>
 
