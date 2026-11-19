@@ -24,15 +24,22 @@ class Settings(BaseSettings):
     )
     # SQLite fallback for quick local testing without PostgreSQL
     USE_SQLITE_FALLBACK: bool = os.getenv("USE_SQLITE_FALLBACK", "true").lower() == "true"
-    SQLITE_DB_PATH: str = os.getenv("SQLITE_DB_PATH", "./data/finance.db")
+    SQLITE_DB_PATH: str = os.getenv("SQLITE_DB_PATH", "/tmp/finance.db" if os.getenv("VERCEL") else "./data/finance.db")
     
     # Redis & Broker
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     
     # Storage & Rules
-    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./data/uploads")
-    RULES_PATH: str = os.getenv("RULES_PATH", "./app/rules/finance_rules.json")
-    MODEL_PATH: str = os.getenv("MODEL_PATH", "./app/ml/category_model.pkl")
+    _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./data/uploads")
+    RULES_PATH: str = os.getenv(
+        "RULES_PATH",
+        os.path.join(_BACKEND_DIR, "app", "rules", "finance_rules.json") if os.path.exists(os.path.join(_BACKEND_DIR, "app", "rules", "finance_rules.json")) else "./app/rules/finance_rules.json"
+    )
+    MODEL_PATH: str = os.getenv(
+        "MODEL_PATH",
+        os.path.join(_BACKEND_DIR, "app", "ml", "category_model.pkl") if os.path.exists(os.path.join(_BACKEND_DIR, "app", "ml", "category_model.pkl")) else "./app/ml/category_model.pkl"
+    )
     
     # Security
     SESSION_SECRET: str = os.getenv("SESSION_SECRET", "super-secret-session-key-agentic-finance-32bytes")

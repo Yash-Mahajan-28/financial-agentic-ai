@@ -38,22 +38,30 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"https?://.*" if settings.ENVIRONMENT == "production" or os.getenv("VERCEL") else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include all API Routers
-app.include_router(auth_router)
-app.include_router(uploads_router)
-app.include_router(transactions_router)
-app.include_router(budgets_router)
-app.include_router(dashboard_router)
-app.include_router(insights_router)
-app.include_router(forecast_router)
-app.include_router(advisor_router)
-app.include_router(accounts_router)
-app.include_router(system_router)
+# Include all API Routers (direct mount)
+api_routers = [
+    auth_router,
+    uploads_router,
+    transactions_router,
+    budgets_router,
+    dashboard_router,
+    insights_router,
+    forecast_router,
+    advisor_router,
+    accounts_router,
+    system_router,
+]
+
+for router in api_routers:
+    app.include_router(router)
+    # Also support /api prefix for reverse proxies, dev proxies, and Vercel services rewrites
+    app.include_router(router, prefix="/api")
 
 @app.on_event("startup")
 def on_startup():
