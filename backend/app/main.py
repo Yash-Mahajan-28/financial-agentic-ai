@@ -66,19 +66,24 @@ for router in api_routers:
 @app.on_event("startup")
 def on_startup():
     logger.info("Starting up Personal Finance Agent API...")
-    # Auto-create tables
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database schema initialized.")
-    
-    # Auto-seed demo environment if empty
-    from app.bootstrap import seed_database
-    db = SessionLocal()
     try:
-        seed_database(db)
-    finally:
-        db.close()
+        # Auto-create tables
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schema initialized.")
+        
+        # Auto-seed demo environment if empty
+        from app.bootstrap import seed_database
+        db = SessionLocal()
+        try:
+            seed_database(db)
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Startup bootstrap exception: {e}", exc_info=True)
 
 @app.get("/")
+@app.get("/api")
+@app.get("/api/")
 def root():
     return {
         "service": settings.PROJECT_NAME,

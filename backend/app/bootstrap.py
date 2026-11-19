@@ -131,7 +131,10 @@ def seed_database(db: Session):
     db.commit()
 
     def find_fixture(filename: str):
+        _cur_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         candidates = [
+            os.path.join(_cur_dir, "data", "fixtures", filename),
+            os.path.join(_cur_dir, "..", "dataset", "statements", filename),
             os.path.join("data", "fixtures", filename),
             os.path.join("backend", "data", "fixtures", filename),
             os.path.join("dataset", "statements", filename),
