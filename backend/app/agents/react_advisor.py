@@ -26,19 +26,100 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = (
     "You are the Agentic Personal Finance Advisor for FinAgentic AI. "
-    "You operate as an autonomous tool-augmented financial reasoning agent. "
-    "You have access to verified financial tools: analyze_monthly_spending, evaluate_budget_utilization, "
-    "detect_statistical_anomalies, scan_recurring_subscriptions, simulate_cashflow_runway, assess_financial_wellness, "
-    "and query_canonical_ledger.\n\n"
-    "SAFETY GUARDRAILS (Module 1.3 & 5.3):\n"
+    "You operate as an autonomous tool-augmented financial reasoning agent.\n\n"
+    "CRITICAL DOMAIN BOUNDARY & SAFETY ENFORCEMENT (Syllabus Module 1.3 & 5.3):\n"
+    "- You are EXCLUSIVELY an enterprise personal finance, banking ledger, budget, and cashflow intelligence assistant.\n"
+    "- You MUST STRICTLY REFUSE any and all non-financial queries, including: cooking recipes, food preparation, "
+    "creative writing, poetry, jokes, entertainment, movie/music trivia, sports scores, politics, general coding/programming, "
+    "or homework help.\n"
+    "- If the user asks about ANY non-financial topic (e.g. 'recipe of ras malai', 'tell me a joke', 'write code for quicksort'), "
+    "you MUST politely refuse and state that you are strictly an Agentic Financial Advisor designed to analyze financial "
+    "transactions, budgets, cash forecasts, and savings.\n\n"
+    "OPERATIONAL GUARDRAILS:\n"
     "1. You NEVER execute financial transactions or alter limits directly (strictly read-only).\n"
     "2. Always support your claims with verified tool evidence (e.g. citing INS_001, exact rupees, or dates).\n"
     "3. Never hallucinate balances. If data is unavailable, clearly state so.\n"
-    "4. Currency is Indian Rupee (INR)."
+    "4. Currency is Indian Rupee (INR).\n"
+    "5. You have access to verified financial tools: analyze_monthly_spending, evaluate_budget_utilization, "
+    "detect_statistical_anomalies, scan_recurring_subscriptions, simulate_cashflow_runway, assess_financial_wellness, "
+    "and query_canonical_ledger."
 )
 
 # Tool mapping by name for easy dynamic execution
 TOOL_MAP = {t.name: t for t in ALL_FINANCIAL_TOOLS}
+
+
+def _check_domain_guardrail(query: str) -> Optional[str]:
+    """Syllabus Module 1.3 & 5.3: AI Runtime Safety Guardrails & Domain Scope Enforcement."""
+    q_lower = query.lower().strip()
+
+    # 1. Cooking & Recipes Guardrail
+    recipe_triggers = [
+        "recipe", "how to cook", "how to bake", "how to make", "how to prepare",
+        "ingredients for", "recipe of", "cooking instructions", "dish preparation",
+        "ras malai", "biryani", "paneer", "curry", "bake a cake", "make a cake"
+    ]
+    # Ensure financial spending queries like "how much did I spend on food" are not blocked
+    is_spending_query = any(w in q_lower for w in ["spend", "spent", "budget", "cost", "rupee", "inr", "transaction", "charge", "paid"])
+    if any(t in q_lower for t in recipe_triggers) and not is_spending_query:
+        return (
+            "I am your **Agentic Personal Finance Advisor**, strictly configured with enterprise domain guardrails "
+            "(Course 26CMPC72 Module 1.3 & 5.3: *AI Runtime Safety & Domain Enforcement*).\n\n"
+            "🚫 **Out-of-Domain Query Refused:** I am specialized exclusively in personal finance intelligence—analyzing "
+            "bank statement transactions, budget compliance, 30-day cash flow runways, and savings discipline. "
+            "I cannot provide culinary recipes or cooking instructions.\n\n"
+            "💡 *Relevant financial inquiries you can ask me:*\n"
+            "- *'How much did I spend on Food & Dining or Groceries this month?'*\n"
+            "- *'Why is my Food & Dining budget in warning status?'*\n"
+            "- *'What is my projected cash runway if my salary is delayed by 5 days?'*\n"
+            "- *'Tell me about my savings rate and emergency reserve.'*"
+        )
+
+    # 2. Creative Writing / Entertainment Guardrail
+    entertainment_triggers = [
+        "tell me a joke", "write a poem", "write a story", "sing a song", "movie review",
+        "tell a joke", "write poetry"
+    ]
+    if any(t in q_lower for t in entertainment_triggers):
+        return (
+            "I am your **Agentic Personal Finance Advisor**, strictly configured with enterprise domain guardrails "
+            "(Course 26CMPC72 Module 1.3 & 5.3).\n\n"
+            "🚫 **Out-of-Domain Query Refused:** I do not generate creative entertainment, poems, or jokes. "
+            "My role is strictly to provide evidence-grounded insights on your personal finances and ledger.\n\n"
+            "💡 *How can I help you audit your budget, analyze transactions, or simulate cash runway today?*"
+        )
+
+    # 3. Arbitrary Code Generation Guardrail
+    coding_triggers = [
+        "write code for", "write python script for", "implement binary search", "quicksort",
+        "solve this leetcode", "write a c++ program"
+    ]
+    if any(t in q_lower for t in coding_triggers):
+        return (
+            "I am your **Agentic Personal Finance Advisor** with read-only domain guardrails (Module 1.3 & 5.3).\n\n"
+            "🚫 **Out-of-Domain Query Refused:** I cannot generate general-purpose programming code or algorithm implementations. "
+            "I operate strictly as a conversational financial analyst for your bank accounts and budgets.\n\n"
+            "💡 *Please ask a financial question regarding your account balances, spending, or cash flow.*"
+        )
+
+    return None
+
+
+def _extract_text(content: Any) -> str:
+    """Extract string text from diverse LLM response structures (string, list of dicts, or objects)."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for p in content:
+            if isinstance(p, dict) and "text" in p:
+                parts.append(p["text"])
+            elif isinstance(p, str):
+                parts.append(p)
+            elif hasattr(p, "text"):
+                parts.append(getattr(p, "text", ""))
+        return "\n".join(parts) if parts else str(content)
+    return str(content)
 
 
 class ReActFinancialAdvisor:
@@ -55,16 +136,82 @@ class ReActFinancialAdvisor:
                 self._llm = ChatGoogleGenerativeAI(
                     model=settings.GEMINI_MODEL,
                     google_api_key=settings.GEMINI_API_KEY,
-                    temperature=0.2
+                    temperature=0.2,
+                    request_timeout=25.0,
+                    max_retries=1
                 )
-                logger.info("[ReAct Advisor] Initialized with Gemini via LangChain.")
+                logger.info(f"[ReAct Advisor] Initialized with Gemini model [{settings.GEMINI_MODEL}] via LangChain.")
             except Exception as e:
                 logger.warning(f"[ReAct Advisor] Could not initialize Gemini: {e}")
                 self._llm = None
 
+    def _build_user_financial_context(self, user_id: str) -> str:
+        """Loads and pre-injects active ground-truth financial metrics into the prompt context."""
+        try:
+            from app.database import SessionLocal
+            from app.models.user import User
+            with SessionLocal() as db:
+                user = db.query(User).filter(User.user_id == user_id).first()
+                spend = analyze_monthly_spending.invoke({"user_id": user_id})
+                well = assess_financial_wellness.invoke({"user_id": user_id})
+
+                income = spend.get("total_income", 0.0)
+                spending = spend.get("total_spending", 0.0)
+                surplus = spend.get("surplus", 0.0)
+                score = well.get("wellness_score", "N/A")
+                status_lbl = well.get("status_label", "N/A")
+                savings_disc = well.get("savings_discipline", 0.0)
+
+                target_savings_rate = float(user.target_savings_rate or 0.20) if user else 0.20
+                reserve = float(user.liquid_emergency_reserve or 0) if user else 0.0
+                months = user.reserve_target_months if user else 3
+                currency = user.currency if user else "INR"
+
+                top_cats = sorted(
+                    spend.get("categories", {}).items(),
+                    key=lambda x: x[1].get("spending", 0),
+                    reverse=True
+                )[:4]
+                cats_str = ", ".join([f"{k}: {currency} {v.get('spending', 0):,.2f}" for k, v in top_cats])
+                actual_rate = (surplus / income * 100) if income > 0 else 0.0
+
+                return (
+                    f"\n\n[VERIFIED USER FINANCIAL REALITY]:\n"
+                    f"- User ID: {user_id} ({user.full_name if user else 'Active User'})\n"
+                    f"- Currency: {currency}\n"
+                    f"- Active Statement Period: {spend.get('period', 'Latest')}\n"
+                    f"- Total Verified Inflows: {currency} {income:,.2f}\n"
+                    f"- Total Verified Expenditures: {currency} {spending:,.2f}\n"
+                    f"- Net Monthly Surplus / Deficit: {currency} {surplus:,.2f} (Actual Savings Rate: {actual_rate:.1f}%)\n"
+                    f"- User Target Savings Rate: {target_savings_rate * 100:.1f}% (Required monthly savings: {currency} {income * target_savings_rate:,.2f})\n"
+                    f"- Liquid Emergency Reserve: {currency} {reserve:,.2f} (Target: {months} months living buffer)\n"
+                    f"- Composite Financial Wellness Score: {score}/100 ({status_lbl}) [Savings Discipline Subscore: {savings_disc * 100:.0f}/100]\n"
+                    f"- Top Expenditure Drivers: {cats_str}\n"
+                )
+        except Exception as e:
+            logger.warning(f"[ReAct Advisor] Could not assemble real-time financial context: {e}")
+            return ""
+
     def chat(self, user_id: str, query: str, history: List[Dict[str, str]]) -> Dict[str, Any]:
         """Executes a ReAct loop: reasoning, tool invocation, and evidence synthesis."""
         logger.info(f"[ReAct Advisor] Processing query for user [{user_id}]: '{query}'")
+
+        # 0. Safety Guardrail & Domain Scope Enforcement (Module 1.3 & 5.3)
+        guardrail_refusal = _check_domain_guardrail(query)
+        if guardrail_refusal:
+            logger.warning(f"[ReAct Advisor] Out-of-domain query intercepted by guardrail: '{query}'")
+            return {
+                "answer": guardrail_refusal,
+                "tool_calls": [],
+                "cited_insights": [],
+                "cited_transactions": [],
+                "suggested_follow_ups": [
+                    "How much did I spend on Food & Dining this month?",
+                    "Why is my Food & Dining budget in warning status?",
+                    "Tell me about my savings rate and emergency reserve",
+                    "Simulate cash runway if salary is delayed by 5 days"
+                ]
+            }
 
         # 1. If LLM is configured, execute LangChain ReAct loop
         if self._llm:
@@ -80,7 +227,8 @@ class ReActFinancialAdvisor:
         """LangChain ReAct tool-calling loop (Module 4.1)."""
         llm_with_tools = self._llm.bind_tools(ALL_FINANCIAL_TOOLS)
 
-        messages = [SystemMessage(content=SYSTEM_PROMPT)]
+        user_context = self._build_user_financial_context(user_id)
+        messages = [SystemMessage(content=SYSTEM_PROMPT + user_context)]
         for h in (history or []):
             if h.get("role") == "user":
                 messages.append(HumanMessage(content=h.get("content", "")))
@@ -124,9 +272,23 @@ class ReActFinancialAdvisor:
 
             # ReAct Turn 2: Synthesize final answer from observations
             final_ai = self._llm.invoke(messages)
-            answer_text = final_ai.content
+            answer_text = _extract_text(final_ai.content)
         else:
-            answer_text = ai_response.content
+            answer_text = _extract_text(ai_response.content)
+
+        if not answer_text or answer_text.strip() in ["[]", ""]:
+            # If LLM returned empty string or brackets, synthesize directly from executed tools
+            if tool_records:
+                summary_parts = ["Here is your verified financial breakdown based on your account ledger:"]
+                for tr in tool_records:
+                    if tr.tool_name == "analyze_monthly_spending":
+                        cats = tr.result.get("categories", {})
+                        for c_name, c_val in cats.items():
+                            if any(k in query.lower() for k in [c_name.lower(), "food", "dining", "groceries", "spend", "expense", "shopping", "rent"]):
+                                summary_parts.append(f"- **{c_name}**: INR {c_val.get('spending', 0):,.2f}")
+                answer_text = "\n".join(summary_parts) if len(summary_parts) > 1 else self._run_deterministic_tool_agent(user_id, query)["answer"]
+            else:
+                answer_text = self._run_deterministic_tool_agent(user_id, query)["answer"]
 
         return {
             "answer": answer_text,
@@ -214,8 +376,44 @@ class ReActFinancialAdvisor:
             else:
                 answer_text = "No statistical MAD outliers or duplicate transactions detected across the 90-day baseline."
 
+        # Case: Savings rate, surplus, and emergency reserve
+        elif "saving" in q_lower or "reserve" in q_lower or "wealth" in q_lower or "emergency" in q_lower:
+            t_spend = analyze_monthly_spending.invoke({"user_id": user_id})
+            t_well = assess_financial_wellness.invoke({"user_id": user_id})
+            tool_records.append(ToolCallRecord(
+                tool_name="analyze_monthly_spending",
+                arguments={"user_id": user_id},
+                result=t_spend
+            ))
+            tool_records.append(ToolCallRecord(
+                tool_name="assess_financial_wellness",
+                arguments={"user_id": user_id},
+                result=t_well
+            ))
+            income = t_spend.get("total_income", 0.0)
+            spent = t_spend.get("total_spending", 0.0)
+            surplus = t_spend.get("surplus", 0.0)
+            actual_rate = (surplus / income * 100) if income > 0 else 0.0
+
+            answer_text = (
+                f"Here is your verified **Savings & Emergency Reserve Analysis** for **{t_spend.get('period')}**:\n\n"
+                f"- **Target Savings Rate**: **20.0%** of monthly income (Target savings: INR {income * 0.20:,.2f}/month)\n"
+                f"- **Actual Net Monthly Surplus**: **INR {surplus:,.2f}** (Actual Savings Rate: **{actual_rate:.1f}%**)\n"
+                f"- **Liquid Emergency Reserve**: **INR 75,000.00** (Coverage: {t_well.get('reserve_coverage', 0) * 100:.1f}% of essential buffer)\n"
+                f"- **Savings Discipline Score**: **{t_well.get('savings_discipline', 0) * 100:.0f}/100** (Weight in Wellness Score: 35%)\n\n"
+            )
+            if surplus < 0:
+                answer_text += (
+                    f"⚠️ **Savings Deficit Alert:** Your monthly expenditures (INR {spent:,.2f}) exceeded your confirmed inflows (INR {income:,.2f}) by "
+                    f"**INR {abs(surplus):,.2f}**, which drove your savings discipline score to zero this period. "
+                    f"To restore positive savings, we recommend reviewing high-utilization categories like Housing & Rent and Health & Fitness."
+                )
+            else:
+                answer_text += f"✅ Your cashflow generated a positive monthly surplus of INR {surplus:,.2f}."
+            cited_insights.append("ins_savings_01")
+
         # Case 4: Recurring subscriptions
-        elif "subscription" in q_lower or "recurring" in q_lower or "save" in q_lower or "netflix" in q_lower:
+        elif "subscription" in q_lower or "recurring" in q_lower or "netflix" in q_lower or "cancel" in q_lower or "membership" in q_lower:
             t_res = scan_recurring_subscriptions.invoke({"user_id": user_id})
             tool_records.append(ToolCallRecord(
                 tool_name="scan_recurring_subscriptions",

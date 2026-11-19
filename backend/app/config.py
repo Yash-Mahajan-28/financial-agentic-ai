@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     
     # AI / LLM Configuration
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
     LOCAL_LLM_URL: str = os.getenv("LOCAL_LLM_URL", "") # e.g. http://localhost:11434/v1
     LOCAL_LLM_MODEL: str = os.getenv("LOCAL_LLM_MODEL", "llama3.2")
     
