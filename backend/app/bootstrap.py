@@ -20,45 +20,48 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 def seed_database(db: Session):
-    # Check if demo user already exists
+    # Check if demo user, accounts, and transactions already exist
     demo_user = db.query(User).filter(User.email == "demo@agentic.finance").first()
-    if demo_user:
-        completed_run = db.query(AnalysisRun).filter(
-            AnalysisRun.user_id == demo_user.user_id,
-            AnalysisRun.status == "COMPLETED"
-        ).first()
-        if completed_run:
-            logger.info("Demo user already exists with completed analysis run. Skipping bootstrap seeding.")
-            return
-        else:
-            logger.info("Demo user exists but analysis pipeline is incomplete. Re-running pipeline...")
-            orchestrator.run_full_pipeline(db, demo_user.user_id, trigger_reason="BOOTSTRAP_RETRY")
-            logger.info("Analysis pipeline completed successfully!")
-            return
+    has_accounts = db.query(Account).count() >= 3 if demo_user else False
+    has_txs = db.query(Transaction).count() > 0 if demo_user else False
+    completed_run = db.query(AnalysisRun).filter(
+        AnalysisRun.status == "COMPLETED"
+    ).first() if demo_user else None
+
+    if demo_user and has_accounts and has_txs and completed_run:
+        logger.info("Demo database is fully seeded and verified. Skipping bootstrap.")
+        return
 
     logger.info("Bootstrapping database with seed accounts, budgets, and statements...")
 
-    # 1. Ensure ML Model is trained
-    train_classifier(settings.MODEL_PATH)
+    # 1. Ensure ML Model is trained (skip disk write if already bundled)
+    if not os.path.exists(settings.MODEL_PATH):
+        try:
+            train_classifier(settings.MODEL_PATH)
+        except Exception as e:
+            logger.warning(f"ML Classifier training/saving warning: {e}")
 
     # 2. Create Demo User
     user_id = "usr_demo_01"
-    hashed_pw = auth_service.hash_password(settings.DEMO_PASSWORD)
-    user = User(
-        user_id=user_id,
-        email="demo@agentic.finance",
-        hashed_password=hashed_pw,
-        full_name="Yash Mahajan",
-        currency="INR",
-        confirmed_net_income=Decimal("50000.00"),
-        confirmed_monthly_debt=Decimal("7000.00"),
-        liquid_emergency_reserve=Decimal("75000.00"),
-        target_savings_rate=Decimal("0.20"),
-        debt_burden_ceiling=Decimal("0.40"),
-        reserve_target_months=3
-    )
-    db.add(user)
-    db.commit()
+    if not demo_user:
+        hashed_pw = auth_service.hash_password(settings.DEMO_PASSWORD)
+        user = User(
+            user_id=user_id,
+            email="demo@agentic.finance",
+            hashed_password=hashed_pw,
+            full_name="Yash Mahajan",
+            currency="INR",
+            confirmed_net_income=Decimal("50000.00"),
+            confirmed_monthly_debt=Decimal("7000.00"),
+            liquid_emergency_reserve=Decimal("75000.00"),
+            target_savings_rate=Decimal("0.20"),
+            debt_burden_ceiling=Decimal("0.40"),
+            reserve_target_months=3
+        )
+        db.add(user)
+        db.commit()
+    else:
+        user_id = demo_user.user_id
 
     # 3. Create Seed Accounts
     accounts_data = [

@@ -76,10 +76,13 @@ def train_classifier(output_path: Optional[str] = None):
         logger.info(f"Trained pure-Python LightweightTFIDFClassifier with {len(descriptions)} samples.")
 
     if output_path:
-        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-        with open(output_path, "wb") as f:
-            pickle.dump(model, f)
-        logger.info(f"Saved trained classifier to {output_path}")
+        try:
+            os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+            with open(output_path, "wb") as f:
+                pickle.dump(model, f)
+            logger.info(f"Saved trained classifier to {output_path}")
+        except Exception as e:
+            logger.warning(f"Could not persist classifier to {output_path} ({e}). Using in-memory model.")
 
     return model
 

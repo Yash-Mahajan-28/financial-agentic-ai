@@ -17,6 +17,13 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
 
     if not token:
         # Check if demo user exists and auto-authenticate for effortless local demo/testing
+        from app.models.user import Account
+        if db.query(Account).count() == 0:
+            from app.bootstrap import seed_database
+            try:
+                seed_database(db)
+            except Exception:
+                pass
         demo_user = db.query(User).filter(User.email == "demo@agentic.finance").first()
         if demo_user:
             return demo_user
